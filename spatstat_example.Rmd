@@ -1,0 +1,60 @@
+---
+title: "Student - Spatstat package presentation"
+author: "Emily Tate"
+date: "10/21/2019"
+output:
+  word_document: default
+---
+
+### Introduction: 
+ “Spatstat” analyzes spatial point patterns in 2D.  Although this package specializes in 2D interpretations it can also create 3D objects using the pp3 class. There are hundreds of function options. Luckily, the options are well-documented to facilitate applying them to analysizing and visiualizing data.
+ 
+ 
+The most recent update, “Puppy zoomies”, includes features including: fast kernel estimation on a linear network using 2D kernel; nonparametric maximum likelihood estimation of ‘rho’; extension of Scott’s rule for bandwidth, selection, cross-validated bandwidth selection on a linear network; more support for character-valued images; and random thinning of clumps. Datasets in spatstat are lazy-loaded, so they can be used by just typing the name of the dataset.
+
+### Features and Basic Usage:
+Spatstat has options for: 
+* Creating and manipulating data 
+* Exploratory Data Analysis 
+* Model fitting with Cox and cluster models 
+* Model fitting with Poisson and Gibbs models 
+* Model fitting with determinantal point processes 
+* Model fitting with spatial logistic regression
+
+Main types of spatial data that can be used with this package:
+•	ppp point pattern
+•	owin window (spatial region)
+•	im pixel image
+•	psp line segment pattern
+•	tess tessellation
+•	pp3 three-dimensional point pattern
+•	ppx point pattern in any number of dimensions
+•	lpp point pattern on a linear network
+
+### Install 'Spatstat' package
+```{r}
+#Install the Spatstat package and package with update that let the package functions run
+install.packages('spatstat') 
+install.packages('spatstat.utils') 
+
+#Then load these packages using the 'library' function
+
+```
+
+Insert code chuck and type 'beginner' below. This will open up a help page with resources.
+
+
+### Example Problem
+```{r}
+# Compute and view a fitted effect of a spatial covariate in a point process model
+n <- copper$SouthPoints 
+D <- distfun(copper$SouthLines)
+fit <- ppm(X ~ polynom(D, 5))
+effectfun(fit)
+plot(effectfun(fit, se.fit=TRUE))
+fitx <- ppm(X ~ x + polynom(D, 5))
+plot(effectfun(fitx, "D", x=20))
+```
+
+
+

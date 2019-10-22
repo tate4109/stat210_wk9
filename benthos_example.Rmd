@@ -1,0 +1,70 @@
+---
+title: "Benthos Demonstration"
+output: html_notebook
+---
+
+Benthos utilizes several highly-technical indices/functions which can feel extremely cumbersome to non-professionals like us, so I will demonstrate some of the more simple functions that it offers.
+
+To begin, please install.packages("benthos") and run the code below:
+```{r}
+install.packages('benthos')
+library(benthos)
+#the following are for data manipulation/visualization:
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+```
+
+We will illustrate the benthos-package by means of the Oosterschelde marine benthos data set. This data set ships with the benthos-package and can be loaded by typing:
+```{r}
+data("oosterschelde")
+#type ?oosterschelde if you want to see documentation on data
+```
+ 
+ 
+ 
+ We can then **preprocess** the data for analysis simplification; for example, say we want to view the samples (stored in rows) taken in August and September:
+```{r}
+oosterschelde <- oosterschelde %>%
+    filter(months(DATE) %in% c("August", "September"))
+```
+
+..Or we can create a new column by combining data from the samples into 'YEAR':
+```{r}
+oosterschelde <- oosterschelde %>%
+    mutate(YEAR = DATE %>% format("%Y"))
+oosterschelde
+```
+
+
+Several biodiversity measures can be used with the pre-processed data, such as...
+
+
+The **total abundance** is the total number of individuals in a sampling unit:
+```{r}
+oosterschelde %>% total_abundance(count=COUNT)
+```
+
+The **abundance** is the total number of individuals per taxon in a sampling unit (Maybe don't run this one):
+```{r}
+oosterschelde %>% abundance(taxon=TAXON, count=COUNT) %>% as.matrix
+```
+
+
+**Species richness, S** is the number of different species in a (pooled) sample:
+```{r}
+oosterschelde %>% species_richness(taxon=TAXON, count=COUNT)
+```
+
+
+**Simpson’s Measure of Concentration** gives the probability that two individuals selected at random from a sample will belong to the same species. "For an infinite sample Simpson’s Index is given by:
+λ=∑i=1Sπ2i
+where πi the proportion of the individuals in species i. For a finite sample, Simpson’s index is:
+L=∑i=1Sni(ni−1)N(N−1)
+where ni the number of individuals in species i and N the total number of individuals."
+
+The finite sample case can be computed by:
+```{r}
+oosterschelde %>% simpson(taxon=TAXON, count=COUNT)
+```

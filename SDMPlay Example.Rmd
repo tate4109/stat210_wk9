@@ -1,0 +1,81 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+### Example  
+```{r}
+install.packages('SDMPlay')
+library('SDMPlay') #load in the package
+data("ctenocidaris.nutrix") #retreive data
+head(ctenocidaris.nutrix) #gives first 6 rows of the data
+```
+
+```{r}
+data("predictors2005_2012") #data from 2005-2012
+```
+
+```{r message=FALSE}
+require(raster)
+plot(subset(predictors2005_2012, c(1:6))) #plots the data on raster map, choosing 6 of the different properties of the data, there is 15 total which we can view by using names(predictors2005_2012), this picks 1-6
+```
+
+
+```{r}
+ctenocidaris.nutrix.occ <- ctenocidaris.nutrix[,c(7,8)]
+head(ctenocidaris.nutrix.occ) #pulls out the latitude and longitude values, and shows the first 6
+```
+
+```{r}
+SDMtable_ctenocidaris <- SDMPlay:::SDMtab(xydata=ctenocidaris.nutrix.occ, 
+       predictors=predictors2005_2012) #creates the dataframe 
+head(SDMtable_ctenocidaris[,c(1:5)])
+```
+
+
+```{r}
+bluepalette<-colorRampPalette(c("blue4","blue","dodgerblue", "deepskyblue","lightskyblue"))(800) #chooses color palette 
+
+depth <- subset(predictors2005_2012,1) #gets the depth layer by itself
+
+background.occ <- subset(SDMtable_ctenocidaris,SDMtable_ctenocidaris$id==0)[,c(2,3)] #gets the background coordinates from the table
+
+plot(depth, col=bluepalette, cex=0.8,legend.width=0.5, legend.shrink=0.4,
+     legend.args=list(text='Depth (m)', side=3, font=2, cex=0.8))
+points(ctenocidaris.nutrix.occ, pch= 20, col="black")
+points(background.occ, pch= 20, col="red")
+legend("bottomleft", pch=20, col=c("black", "red"), legend=c("presence-only data","background data"), cex=0.6) #plots the results
+```
+
+```{r}
+par(mar=c(0,0,0,0)) #this is the parameter function that you can change margins/layout of a single or multiple graphs
+predictors2005_2012_1500m <- SDMPlay:::delim.area(predictors2005_2012, longmin=62, longmax=80,latmin=-55 , latmax=-45, interval=c(0,-1500)) #restricts to 1500m depth 
+plot(subset(predictors2005_2012_1500m,1), col=bluepalette,legend.width=0.5, legend.shrink=0.25,
+     legend.args=list(text='Depth (m)', side=3, font=2, cex=0.8)) #plots the new layer
+```
+
+
+```{r}
+SDMtable_ctenocidaris_1500 <- SDMPlay:::SDMtab(xydata=ctenocidaris.nutrix.occ, 
+       predictors=predictors2005_2012_1500m,
+       unique.data=FALSE,
+       same=TRUE)
+```
+
+
+
+```{r}
+Cteno_model_2005_2012 <- SDMPlay:::compute.brt(x=SDMtable_ctenocidaris_1500, proj.predictors=predictors2005_2012_1500m, tc = 2, lr = 0.001, bf = 0.75, n.trees = 500)
+```
+
+
+
+```{r}
+palettecolor <- colorRampPalette(c("deepskyblue", "darkseagreen","lightgreen","green","yellow","gold","orange", "red","firebrick"))(100)
+
+plot(Cteno_model_2005_2012$raster.prediction,col=palettecolor, main="Projection for [2005-2012]",
+     cex.axis= 0.7, 
+     legend.width=0.5, legend.shrink=0.25,
+     legend.args=list(text='Distribution probability', side=3, font=2, cex=0.8))
+```
+
